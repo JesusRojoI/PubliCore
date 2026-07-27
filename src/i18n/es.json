@@ -304,7 +304,7 @@
     "pais_label": "País / Región *",
     "direccion_label": "Dirección de la calle *",
     "direccion_placeholder": "Nombre de la calle y número de la casa",
-    "poblacion_label": "Población *",
+    "poblacion_label": "Población",
     "region_label": "Región / Provincia *",
     "cp_label": "Código postal / ZIP *",
     "email_label": "Dirección de correo electrónico *",

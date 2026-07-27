@@ -1689,7 +1689,7 @@ body {
 
 .cart-total-row:last-child { border-bottom: none; }
 .cart-total-final { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--text-primary); background: rgba(46, 204, 113, 0.04); }
-.cart-total-final span:last-child { background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cart-total-final span:last-child { background: var(--gradient-accent); background-clip: text; -webkit-text-fill-color: transparent; }
 .cart-discount-row { color: #2ecc71 !important; font-weight: 600; }
 
 .cart-checkout-btn {
@@ -1887,7 +1887,7 @@ body {
 .order-summary-item { display: flex; flex-direction: column; gap: 0.3rem; }
 .order-summary-label { font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); }
 .order-summary-value { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); }
-.order-total { font-family: 'Poppins', sans-serif; font-size: 1.5rem; background: var(--gradient-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.order-total { font-family: 'Poppins', sans-serif; font-size: 1.5rem; background: var(--gradient-accent); background-clip: text; -webkit-text-fill-color: transparent; }
 
 .order-section-title { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
 .order-table-header { display: flex; justify-content: space-between; padding-bottom: 0.8rem; border-bottom: 2px solid rgba(255, 255, 255, 0.08); font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); }
@@ -2197,3 +2197,20 @@ select.checkout-input, select.conexion-input, select.disenar-input {
   .slider-container { height: 250px; }
 }
 
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #e74c3c;
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  border: 2px solid #1a1a1a;
+}

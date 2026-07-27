@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { FiShoppingCart, FiSun, FiMoon, FiX, FiGift } from 'react-icons/fi';
+import { FiSun, FiMoon, FiX, FiGift } from 'react-icons/fi';
 import { useLanguage } from '@/context/LanguageContext';
 
 function generateCoupon(): string {
@@ -106,6 +106,7 @@ export default function ColeccionExclusiva() {
     }];
     setCartItems(newCart);
     localStorage.setItem('publicore-cart', JSON.stringify(newCart));
+    window.dispatchEvent(new Event('cartUpdated'));
     mostrarMensaje(`${productoTrad.nombre} ${t.ruleta.producto_agregado}`);
   };
 
@@ -175,7 +176,6 @@ export default function ColeccionExclusiva() {
         </div>
       </footer>
 
-      <Link href="/cart" className="atelier-cart-float"><FiShoppingCart size={22} /></Link>
       <button onClick={toggleTheme} className="atelier-theme-toggle">{isDarkMode ? <FiSun size={22} /> : <FiMoon size={22} />}</button>
 
       {!showRuleta && (
@@ -183,115 +183,61 @@ export default function ColeccionExclusiva() {
       )}
 
       {showRuleta && (
-  <div className="ruleta-overlay">
-    <div className="ruleta-container">
-      <button className="ruleta-close" onClick={() => setShowRuleta(false)}>
-        <FiX size={22} />
-      </button>
-      
-      <h2 className="ruleta-title">{t.ruleta.titulo}</h2>
-      
-      {yaJugo && resultado !== null ? (
-        <>
-          {resultado > 0 ? (
-            <div className="ruleta-resultado">
-              <div className="ruleta-premio-icono">🎉</div>
-              <p className="ruleta-felicitacion">{t.ruleta.felicitacion.replace('{descuento}', String(resultado))}</p>
-              <p className="ruleta-cupon-label">{t.ruleta.usa_cupon}</p>
-              <div className="ruleta-cupon-box">
-                <span className="ruleta-cupon-codigo">{cupon}</span>
-                <button className="ruleta-copiar-btn" onClick={copiarCupon}>{t.ruleta.copiar}</button>
-              </div>
-              <p className="ruleta-info">{t.ruleta.siguiente_compra}</p>
-              <p className="ruleta-email-info">{t.ruleta.email_enviado}</p>
-            </div>
-          ) : (
-            <div className="ruleta-resultado">
-              <div className="ruleta-premio-icono">😢</div>
-              <p className="ruleta-sin-suerte">{t.ruleta.sin_suerte}</p>
-              <p className="ruleta-info">{t.ruleta.sin_descuento}</p>
-            </div>
-          )}
-          <button className="ruleta-button" onClick={() => setShowRuleta(false)}>{t.ruleta.cerrar}</button>
-        </>
-      ) : (
-        <>
-          <p className="ruleta-subtitle">{t.ruleta.subtitulo}</p>
-          
-          {/* NUEVA RULETA */}
-          <div className="ruleta-wheel-wrapper">
-            {/* Marcador superior */}
-            <div className="ruleta-marker">
-              <svg width="30" height="40" viewBox="0 0 30 40">
-                <polygon points="15,38 0,0 30,0" fill="#d4a017" stroke="#b8860b" strokeWidth="1"/>
-              </svg>
-            </div>
-            
-            <div className="ruleta-wheel-new" style={{ transform: `rotate(${rotation}deg)` }}>
-  {descuentos.map((descuento, index) => {
-    const angle = 360 / descuentos.length;
-    const rotationDeg = angle * index;
-    return (
-      <div
-        key={index}
-        className="ruleta-slice"
-        style={{
-          transform: `rotate(${rotationDeg}deg) skewY(${-(90 - angle)}deg)`,
-          backgroundColor: coloresRuleta[index],
-        }}
-      >
-        <span 
-          className="ruleta-slice-text"
-          style={{ 
-            transform: `skewY(${90 - angle}deg) rotate(${angle / 2}deg)`,
-          }}
-        >
-          {emojisRuleta[index]}
-        </span>
-      </div>
-    );
-  })}
-  <div className="ruleta-center"></div>
-</div>
-            
-            {/* Borde decorativo */}
-            <div className="ruleta-outer-ring"></div>
+        <div className="ruleta-overlay">
+          <div className="ruleta-container">
+            <button className="ruleta-close" onClick={() => setShowRuleta(false)}><FiX size={22} /></button>
+            <h2 className="ruleta-title">{t.ruleta.titulo}</h2>
+            {yaJugo && resultado !== null ? (
+              <>
+                {resultado > 0 ? (
+                  <div className="ruleta-resultado">
+                    <div className="ruleta-premio-icono">🎉</div>
+                    <p className="ruleta-felicitacion">{t.ruleta.felicitacion.replace('{descuento}', String(resultado))}</p>
+                    <p className="ruleta-cupon-label">{t.ruleta.usa_cupon}</p>
+                    <div className="ruleta-cupon-box"><span className="ruleta-cupon-codigo">{cupon}</span><button className="ruleta-copiar-btn" onClick={copiarCupon}>{t.ruleta.copiar}</button></div>
+                    <p className="ruleta-info">{t.ruleta.siguiente_compra}</p>
+                    <p className="ruleta-email-info">{t.ruleta.email_enviado}</p>
+                  </div>
+                ) : (
+                  <div className="ruleta-resultado">
+                    <div className="ruleta-premio-icono">😢</div>
+                    <p className="ruleta-sin-suerte">{t.ruleta.sin_suerte}</p>
+                    <p className="ruleta-info">{t.ruleta.sin_descuento}</p>
+                  </div>
+                )}
+                <button className="ruleta-button" onClick={() => setShowRuleta(false)}>{t.ruleta.cerrar}</button>
+              </>
+            ) : (
+              <>
+                <p className="ruleta-subtitle">{t.ruleta.subtitulo}</p>
+                <div className="ruleta-wheel-wrapper">
+                  <div className="ruleta-marker"><svg width="30" height="40" viewBox="0 0 30 40"><polygon points="15,38 0,0 30,0" fill="#d4a017" stroke="#b8860b" strokeWidth="1"/></svg></div>
+                  <div className="ruleta-wheel-new" style={{ transform: `rotate(${rotation}deg)` }}>
+                    {descuentos.map((descuento, index) => {
+                      const angle = 360 / descuentos.length;
+                      const rotationDeg = angle * index;
+                      return (
+                        <div key={index} className="ruleta-slice" style={{ transform: `rotate(${rotationDeg}deg) skewY(${-(90 - angle)}deg)`, backgroundColor: coloresRuleta[index] }}>
+                          <span className="ruleta-slice-text" style={{ transform: `skewY(${90 - angle}deg) rotate(${angle / 2}deg)` }}>{emojisRuleta[index]}</span>
+                        </div>
+                      );
+                    })}
+                    <div className="ruleta-center"></div>
+                  </div>
+                  <div className="ruleta-outer-ring"></div>
+                </div>
+                <div className="ruleta-form">
+                  <input type="text" placeholder={t.ruleta.placeholder_nombre} className="ruleta-input" value={nombre} onChange={(e) => setNombre(e.target.value)} disabled={spinning} />
+                  <input type="email" placeholder={t.ruleta.placeholder_email} className="ruleta-input" value={email} onChange={(e) => setEmail(e.target.value)} disabled={spinning} />
+                  <button className="ruleta-button" onClick={girarRuleta} disabled={spinning}>
+                    {spinning ? (<span className="ruleta-spinning-text"><span className="ruleta-spinner"></span> {t.ruleta.girando}</span>) : t.ruleta.boton_girar}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-
-          <div className="ruleta-form">
-            <input
-              type="text"
-              placeholder={t.ruleta.placeholder_nombre}
-              className="ruleta-input"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              disabled={spinning}
-            />
-            <input
-              type="email"
-              placeholder={t.ruleta.placeholder_email}
-              className="ruleta-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={spinning}
-            />
-            <button 
-              className="ruleta-button" 
-              onClick={girarRuleta}
-              disabled={spinning}
-            >
-              {spinning ? (
-                <span className="ruleta-spinning-text">
-                  <span className="ruleta-spinner"></span> {t.ruleta.girando}
-                </span>
-              ) : t.ruleta.boton_girar}
-            </button>
-          </div>
-        </>
+        </div>
       )}
-    </div>
-  </div>
-)}
     </div>
   );
 }

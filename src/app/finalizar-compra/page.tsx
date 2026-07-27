@@ -57,7 +57,7 @@ export default function FinalizarCompra() {
     if (!nombre.trim()) newErrores.nombre = t.checkout.nombre_req;
     if (!apellidos.trim()) newErrores.apellidos = t.checkout.apellidos_req;
     if (!direccion.trim()) newErrores.direccion = t.checkout.direccion_req;
-    if (!poblacion.trim()) newErrores.poblacion = t.checkout.poblacion_req;
+    // Población NO es obligatorio
     if (!codigoPostal.trim()) newErrores.codigoPostal = t.checkout.cp_req;
     else if (!/^\d{5}$/.test(codigoPostal.trim())) newErrores.codigoPostal = t.checkout.cp_inv;
     if (!emailFacturacion.trim()) newErrores.email = t.checkout.email_req;
@@ -117,6 +117,7 @@ export default function FinalizarCompra() {
       localStorage.removeItem('publicore-cart');
       localStorage.removeItem('publicore-ya-jugo');
       setCartItems([]);
+      window.dispatchEvent(new Event('cartUpdated'));
       window.location.href = '/finalizar-compra/order-received';
     } catch (error: any) {
       mostrarMensaje(error.message || t.checkout.error_pago);
@@ -143,7 +144,7 @@ export default function FinalizarCompra() {
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.apellidos_label}</label><input type="text" className={`checkout-input ${errores.apellidos ? 'error' : ''}`} value={apellidos} onChange={(e) => {setApellidos(e.target.value); setErrores({...errores, apellidos: ''})}} />{errores.apellidos && <span className="checkout-error">{errores.apellidos}</span>}</div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.pais_label}</label><select className="checkout-input" value={pais} onChange={(e) => setPais(e.target.value)}><option>México</option><option>Estados Unidos</option><option>España</option></select></div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.direccion_label}</label><input type="text" className={`checkout-input ${errores.direccion ? 'error' : ''}`} placeholder={t.checkout.direccion_placeholder} value={direccion} onChange={(e) => {setDireccion(e.target.value); setErrores({...errores, direccion: ''})}} />{errores.direccion && <span className="checkout-error">{errores.direccion}</span>}</div>
-                <div className="checkout-field"><label className="checkout-label">{t.checkout.poblacion_label}</label><input type="text" className={`checkout-input ${errores.poblacion ? 'error' : ''}`} value={poblacion} onChange={(e) => {setPoblacion(e.target.value); setErrores({...errores, poblacion: ''})}} />{errores.poblacion && <span className="checkout-error">{errores.poblacion}</span>}</div>
+                <div className="checkout-field"><label className="checkout-label">{t.checkout.poblacion_label}</label><input type="text" className="checkout-input" value={poblacion} onChange={(e) => setPoblacion(e.target.value)} /></div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.region_label}</label><select className="checkout-input" value={region} onChange={(e) => setRegion(e.target.value)}><option>Ciudad de México</option><option>Estado de México</option><option>Jalisco</option><option>Nuevo León</option></select></div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.cp_label}</label><input type="text" className={`checkout-input ${errores.codigoPostal ? 'error' : ''}`} value={codigoPostal} onChange={(e) => {setCodigoPostal(e.target.value.replace(/\D/g, '').substring(0, 5)); setErrores({...errores, codigoPostal: ''})}} maxLength={5} />{errores.codigoPostal && <span className="checkout-error">{errores.codigoPostal}</span>}</div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.email_label}</label><input type="email" className={`checkout-input ${errores.email ? 'error' : ''}`} value={emailFacturacion} onChange={(e) => {setEmailFacturacion(e.target.value); setErrores({...errores, email: ''})}} />{errores.email && <span className="checkout-error">{errores.email}</span>}</div>
@@ -154,7 +155,20 @@ export default function FinalizarCompra() {
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.tarjeta_numero}</label><input type="text" className={`checkout-input ${errores.numeroTarjeta ? 'error' : ''}`} placeholder="•••• •••• •••• ••••" value={numeroTarjeta} onChange={(e) => {handleNumeroTarjeta(e.target.value); setErrores({...errores, numeroTarjeta: ''})}} />{errores.numeroTarjeta && <span className="checkout-error">{errores.numeroTarjeta}</span>}</div>
                 <div className="checkout-grid-2">
                   <div className="checkout-field"><label className="checkout-label">{t.checkout.tarjeta_fecha}</label><input type="text" className={`checkout-input ${errores.fechaTarjeta ? 'error' : ''}`} placeholder="MM / YY" value={fechaTarjeta} onChange={(e) => {handleFechaTarjeta(e.target.value); setErrores({...errores, fechaTarjeta: ''})}} maxLength={5} />{errores.fechaTarjeta && <span className="checkout-error">{errores.fechaTarjeta}</span>}</div>
-                  <div className="checkout-field"><label className="checkout-label">{t.checkout.tarjeta_cvv}</label><input type="text" className={`checkout-input ${errores.cvv ? 'error' : ''}`} placeholder="•••" value={cvv} onChange={(e) => {setCvv(e.target.value.replace(/\D/g, '').substring(0, 4)); setErrores({...errores, cvv: ''})}} maxLength={4} />{errores.cvv && <span className="checkout-error">{errores.cvv}</span>}</div>
+                  <div className="checkout-field">
+                    <label className="checkout-label">{t.checkout.tarjeta_cvv}</label>
+                    <input 
+                      type="password" 
+                      className={`checkout-input ${errores.cvv ? 'error' : ''}`} 
+                      placeholder="•••" 
+                      value={cvv} 
+                      onChange={(e) => {setCvv(e.target.value.replace(/\D/g, '').substring(0, 4)); setErrores({...errores, cvv: ''})}} 
+                      maxLength={4} 
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                    {errores.cvv && <span className="checkout-error">{errores.cvv}</span>}
+                  </div>
                 </div>
               </div>
               <div className="checkout-col">

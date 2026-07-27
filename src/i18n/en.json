@@ -304,7 +304,7 @@
     "pais_label": "Country / Region *",
     "direccion_label": "Street Address *",
     "direccion_placeholder": "Street name and house number",
-    "poblacion_label": "City *",
+    "poblacion_label": "City",
     "region_label": "State / Province *",
     "cp_label": "Postal Code / ZIP *",
     "email_label": "Email Address *",
