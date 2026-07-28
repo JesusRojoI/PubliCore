@@ -25,9 +25,9 @@ export async function POST(request: Request) {
       html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#27ae60;">${isEnglish ? `Thanks, ${nombre}!` : `¡Gracias, ${nombre}!`}</h2><p>${isEnglish ? 'We will contact you soon.' : 'Pronto te contactaremos.'}</p></div>`,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: 'Correos enviados' });
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ success: false }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Error' }, { status: 500 });
   }
 }

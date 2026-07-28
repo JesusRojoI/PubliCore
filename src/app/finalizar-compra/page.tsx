@@ -12,6 +12,30 @@ const skuToIndex: { [key: string]: number } = {
   'PUB-E9NK2M': 12, 'PUB-9OFXMN': 13,
 };
 
+// Lista de estados de México
+const estadosMexico = [
+  'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche',
+  'Chiapas', 'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima',
+  'Durango', 'Estado de México', 'Guanajuato', 'Guerrero', 'Hidalgo',
+  'Jalisco', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca',
+  'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa',
+  'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán',
+  'Zacatecas'
+];
+
+// Lista de países
+const paises = [
+  'México', 'Estados Unidos', 'Canadá', 'España', 'Francia', 'Alemania',
+  'Italia', 'Reino Unido', 'Portugal', 'Brasil', 'Argentina', 'Chile',
+  'Colombia', 'Perú', 'Ecuador', 'Venezuela', 'Uruguay', 'Paraguay',
+  'Bolivia', 'Costa Rica', 'Panamá', 'Guatemala', 'Honduras', 'El Salvador',
+  'Nicaragua', 'República Dominicana', 'Cuba', 'Japón', 'China', 'Corea del Sur',
+  'India', 'Australia', 'Nueva Zelanda', 'Sudáfrica', 'Egipto', 'Marruecos',
+  'Emiratos Árabes Unidos', 'Arabia Saudita', 'Turquía', 'Rusia', 'Suecia',
+  'Noruega', 'Dinamarca', 'Finlandia', 'Países Bajos', 'Bélgica', 'Suiza',
+  'Austria', 'Irlanda', 'Polonia', 'Grecia', 'Tailandia', 'Singapur'
+];
+
 export default function FinalizarCompra() {
   const { t, language } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -57,7 +81,6 @@ export default function FinalizarCompra() {
     if (!nombre.trim()) newErrores.nombre = t.checkout.nombre_req;
     if (!apellidos.trim()) newErrores.apellidos = t.checkout.apellidos_req;
     if (!direccion.trim()) newErrores.direccion = t.checkout.direccion_req;
-    // Población NO es obligatorio
     if (!codigoPostal.trim()) newErrores.codigoPostal = t.checkout.cp_req;
     else if (!/^\d{5}$/.test(codigoPostal.trim())) newErrores.codigoPostal = t.checkout.cp_inv;
     if (!emailFacturacion.trim()) newErrores.email = t.checkout.email_req;
@@ -142,10 +165,20 @@ export default function FinalizarCompra() {
                 <h2 className="checkout-section-title">{t.checkout.facturacion_titulo}</h2>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.nombre_label}</label><input type="text" className={`checkout-input ${errores.nombre ? 'error' : ''}`} value={nombre} onChange={(e) => {setNombre(e.target.value); setErrores({...errores, nombre: ''})}} />{errores.nombre && <span className="checkout-error">{errores.nombre}</span>}</div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.apellidos_label}</label><input type="text" className={`checkout-input ${errores.apellidos ? 'error' : ''}`} value={apellidos} onChange={(e) => {setApellidos(e.target.value); setErrores({...errores, apellidos: ''})}} />{errores.apellidos && <span className="checkout-error">{errores.apellidos}</span>}</div>
-                <div className="checkout-field"><label className="checkout-label">{t.checkout.pais_label}</label><select className="checkout-input" value={pais} onChange={(e) => setPais(e.target.value)}><option>México</option><option>Estados Unidos</option><option>España</option></select></div>
+                <div className="checkout-field">
+                  <label className="checkout-label">{t.checkout.pais_label}</label>
+                  <select className="checkout-input" value={pais} onChange={(e) => setPais(e.target.value)}>
+                    {paises.map((p, i) => <option key={i}>{p}</option>)}
+                  </select>
+                </div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.direccion_label}</label><input type="text" className={`checkout-input ${errores.direccion ? 'error' : ''}`} placeholder={t.checkout.direccion_placeholder} value={direccion} onChange={(e) => {setDireccion(e.target.value); setErrores({...errores, direccion: ''})}} />{errores.direccion && <span className="checkout-error">{errores.direccion}</span>}</div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.poblacion_label}</label><input type="text" className="checkout-input" value={poblacion} onChange={(e) => setPoblacion(e.target.value)} /></div>
-                <div className="checkout-field"><label className="checkout-label">{t.checkout.region_label}</label><select className="checkout-input" value={region} onChange={(e) => setRegion(e.target.value)}><option>Ciudad de México</option><option>Estado de México</option><option>Jalisco</option><option>Nuevo León</option></select></div>
+                <div className="checkout-field">
+                  <label className="checkout-label">{t.checkout.region_label}</label>
+                  <select className="checkout-input" value={region} onChange={(e) => setRegion(e.target.value)}>
+                    {estadosMexico.map((estado, i) => <option key={i}>{estado}</option>)}
+                  </select>
+                </div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.cp_label}</label><input type="text" className={`checkout-input ${errores.codigoPostal ? 'error' : ''}`} value={codigoPostal} onChange={(e) => {setCodigoPostal(e.target.value.replace(/\D/g, '').substring(0, 5)); setErrores({...errores, codigoPostal: ''})}} maxLength={5} />{errores.codigoPostal && <span className="checkout-error">{errores.codigoPostal}</span>}</div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.email_label}</label><input type="email" className={`checkout-input ${errores.email ? 'error' : ''}`} value={emailFacturacion} onChange={(e) => {setEmailFacturacion(e.target.value); setErrores({...errores, email: ''})}} />{errores.email && <span className="checkout-error">{errores.email}</span>}</div>
                 <div className="checkout-field"><label className="checkout-label">{t.checkout.notas_label}</label><textarea className="checkout-textarea" placeholder={t.checkout.notas_placeholder} value={notas} onChange={(e) => setNotas(e.target.value)} rows={3} /></div>
@@ -157,16 +190,7 @@ export default function FinalizarCompra() {
                   <div className="checkout-field"><label className="checkout-label">{t.checkout.tarjeta_fecha}</label><input type="text" className={`checkout-input ${errores.fechaTarjeta ? 'error' : ''}`} placeholder="MM / YY" value={fechaTarjeta} onChange={(e) => {handleFechaTarjeta(e.target.value); setErrores({...errores, fechaTarjeta: ''})}} maxLength={5} />{errores.fechaTarjeta && <span className="checkout-error">{errores.fechaTarjeta}</span>}</div>
                   <div className="checkout-field">
                     <label className="checkout-label">{t.checkout.tarjeta_cvv}</label>
-                    <input 
-                      type="password" 
-                      className={`checkout-input ${errores.cvv ? 'error' : ''}`} 
-                      placeholder="•••" 
-                      value={cvv} 
-                      onChange={(e) => {setCvv(e.target.value.replace(/\D/g, '').substring(0, 4)); setErrores({...errores, cvv: ''})}} 
-                      maxLength={4} 
-                      inputMode="numeric"
-                      autoComplete="off"
-                    />
+                    <input type="password" className={`checkout-input ${errores.cvv ? 'error' : ''}`} placeholder="•••" value={cvv} onChange={(e) => {setCvv(e.target.value.replace(/\D/g, '').substring(0, 4)); setErrores({...errores, cvv: ''})}} maxLength={4} inputMode="numeric" autoComplete="off" />
                     {errores.cvv && <span className="checkout-error">{errores.cvv}</span>}
                   </div>
                 </div>
