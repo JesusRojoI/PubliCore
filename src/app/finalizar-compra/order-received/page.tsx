@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiSun, FiMoon, FiCheckCircle } from 'react-icons/fi';
 import { useLanguage } from '@/context/LanguageContext';
+import Footer from '@/app/components/Footer';
 
 export default function OrderReceived() {
   const { t } = useLanguage();
@@ -73,16 +74,7 @@ export default function OrderReceived() {
           </div>
         </div>
       </div>
-      <footer className="atelier-footer">
-        <div className="footer-content">
-          <div className="footer-links">
-            <Link href="/politica-privacidad">{t.footer.privacidad}</Link>
-            <Link href="/politica-reembolsos">{t.footer.reembolsos}</Link>
-            <Link href="/terminos-condiciones">{t.footer.terminos}</Link>
-          </div>
-          <div className="footer-copyright">{t.footer.copyright}</div>
-        </div>
-      </footer>
+      <Footer />
       <button onClick={toggleTheme} className="atelier-theme-toggle">{isDarkMode ? <FiSun size={22} /> : <FiMoon size={22} />}</button>
     </div>
   );

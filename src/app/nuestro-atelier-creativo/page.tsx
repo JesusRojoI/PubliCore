@@ -1,5 +1,5 @@
 'use client'
-
+import Footer from '@/app/components/Footer';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FiShoppingCart, FiSun, FiMoon, FiArrowUp } from 'react-icons/fi';
@@ -57,17 +57,7 @@ export default function AtelierCreativo() {
         </div>
       </div>
 
-      <footer className="atelier-footer">
-        <div className="footer-content">
-          <div className="footer-links">
-            <Link href="/politica-privacidad">{t.footer.privacidad}</Link>
-            <Link href="/politica-reembolsos">{t.footer.reembolsos}</Link>
-            <Link href="/terminos-condiciones">{t.footer.terminos}</Link>
-          </div>
-          <div className="footer-copyright">{t.footer.copyright}</div>
-        </div>
-      </footer>
-
+      <Footer />
       <Link href="/cart" className="atelier-cart-float"><FiShoppingCart size={22} /></Link>
       <button onClick={toggleTheme} className="atelier-theme-toggle">
         {isDarkMode ? <FiSun size={22} /> : <FiMoon size={22} />}

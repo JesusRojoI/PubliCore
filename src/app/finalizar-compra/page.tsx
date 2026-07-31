@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FiSun, FiMoon, FiCreditCard } from 'react-icons/fi';
 import { useLanguage } from '@/context/LanguageContext';
+import Footer from '@/app/components/Footer';
 
 const skuToIndex: { [key: string]: number } = {
   'PUB-8L3PS8': 0, 'PUB-FKOFDH': 1, 'PUB-PML9VS': 2, 'PUB-Y6HEHN': 3,
@@ -215,7 +216,7 @@ export default function FinalizarCompra() {
           </form>
         </div>
       </div>
-      <footer className="atelier-footer"><div className="footer-content"><div className="footer-links"><Link href="/politica-privacidad">{t.footer.privacidad}</Link><Link href="/politica-reembolsos">{t.footer.reembolsos}</Link><Link href="/terminos-condiciones">{t.footer.terminos}</Link></div><div className="footer-copyright">{t.footer.copyright}</div></div></footer>
+      <Footer />
       <button onClick={toggleTheme} className="atelier-theme-toggle">{isDarkMode ? <FiSun size={22} /> : <FiMoon size={22} />}</button>
     </div>
   );

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FiShoppingCart, FiSun, FiMoon, FiCheck } from 'react-icons/fi';
 import { useLanguage } from '@/context/LanguageContext';
+import Footer from '@/app/components/Footer';
 
 export default function DisenarMiColeccion() {
   const { t, language } = useLanguage();
@@ -82,7 +83,7 @@ export default function DisenarMiColeccion() {
           </form>
         </div>
       </div>
-      <footer className="atelier-footer"><div className="footer-content"><div className="footer-links"><Link href="/politica-privacidad">{t.footer.privacidad}</Link><Link href="/politica-reembolsos">{t.footer.reembolsos}</Link><Link href="/terminos-condiciones">{t.footer.terminos}</Link></div><div className="footer-copyright">{t.footer.copyright}</div></div></footer>
+      <Footer />
       <Link href="/cart" className="atelier-cart-float"><FiShoppingCart size={22} /></Link>
       <button onClick={toggleTheme} className="atelier-theme-toggle">{isDarkMode ? <FiSun size={22} /> : <FiMoon size={22} />}</button>
     </div>
