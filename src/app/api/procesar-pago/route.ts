@@ -1,26 +1,38 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
 
-const API_URL = "https://pagos.keycop.com.mx/api/v1";
+const ETOMIN_API_URL = 'https://pagos.etomin.com/api/v1';
 
-async function getAuthToken() {
-  const { data } = await axios.post(`${API_URL}/signin`, {
-    email: process.env.KEYCOP_EMAIL,
-    password: process.env.KEYCOP_PASSWORD
+async function postSignin(email: string, password: string) {
+  const response = await fetch(`${ETOMIN_API_URL}/signin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
   });
-  return data.authToken;
+  return response.json();
 }
 
-async function tokenizeCard(token: string, cardData: any) {
-  const { data } = await axios.post(`${API_URL}/card/tokenizer`, {
-    cardData: {
-      cardNumber: cardData.number.replace(/\s/g, ''),
-      cardholderName: cardData.name,
-      expirationYear: cardData.year,
-      expirationMonth: cardData.month
-    }
-  }, { headers: { Authorization: `Bearer ${token}` } });
-  return data.cardNumberToken;
+async function postCardTokenizer(token: string, cardData: any) {
+  const response = await fetch(`${ETOMIN_API_URL}/card/tokenizer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ cardData }),
+  });
+  return response.json();
+}
+
+async function postSale(token: string, saleData: any) {
+  const response = await fetch(`${ETOMIN_API_URL}/sale`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(saleData),
+  });
+  return response.json();
 }
 
 export async function POST(request: Request) {
@@ -28,51 +40,88 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { nombreTarjeta, numeroTarjeta, fechaTarjeta, cvv, monto, nombre, apellidos, email, direccion, poblacion, region, codigoPostal, telefono } = body;
 
-    if (!process.env.KEYCOP_EMAIL || !process.env.KEYCOP_PASSWORD) {
-      return NextResponse.json({ success: false, message: 'Configuración de pago incompleta' }, { status: 500 });
+    // Validar credenciales
+    if (!process.env.ETOMIN_USER || !process.env.ETOMIN_PASSWORD) {
+      return NextResponse.json(
+        { success: false, message: 'Configuración de pago incompleta' },
+        { status: 500 }
+      );
     }
 
-    const authToken = await getAuthToken();
+    // 1. Autenticación con Etomin
+    const authResponse = await postSignin(
+      process.env.ETOMIN_USER,
+      process.env.ETOMIN_PASSWORD
+    );
+
+    const token = authResponse.data?.authToken || authResponse.authToken;
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'No se pudo autenticar con Etomin' },
+        { status: 500 }
+      );
+    }
+
+    // 2. Tokenización de tarjeta
     const [month, year] = fechaTarjeta.split('/');
-    const cardToken = await tokenizeCard(authToken, {
-      number: numeroTarjeta,
-      name: nombreTarjeta,
-      month: month,
-      year: '20' + year
+    const tokenResponse = await postCardTokenizer(token, {
+      cardNumber: numeroTarjeta.replace(/\s/g, ''),
+      cardholderName: nombreTarjeta,
+      expirationYear: '20' + year,
+      expirationMonth: month,
     });
 
-    const salePayload = {
+    const cardToken = tokenResponse.data?.cardNumberToken || tokenResponse.cardNumberToken;
+    if (!cardToken) {
+      return NextResponse.json(
+        { success: false, message: 'No se pudo tokenizar la tarjeta' },
+        { status: 500 }
+      );
+    }
+
+    // 3. Realizar venta
+    const orderId = 'TXN-' + Date.now();
+    const saleResponse = await postSale(token, {
       amount: Number(monto),
-      currency: "484",
-      reference: 'TXN-' + Date.now(),
+      currency: "484", // MXN
+      reference: orderId,
       customerInformation: {
-        firstName: nombre || 'Cliente',
-        lastName: apellidos || 'PubliCore',
+        firstName: nombre?.trim() || 'Cliente',
+        lastName: apellidos?.trim() || 'PubliCore',
+        middleName: "",
         email: email || 'cliente@publicore.com.mx',
         phone1: telefono || '5555555555',
-        address1: direccion || 'Sin dirección',
-        address2: "",
         city: poblacion || 'Ciudad de México',
-        state: region || 'Ciudad de México',
+        address1: direccion || 'Sin dirección',
         postalCode: codigoPostal || '06500',
-        country: "MX",
-        company: "",
-        ip: request.headers.get('x-forwarded-for') || '127.0.0.1',
+        state: region || 'Ciudad de México',
+        country: 'México',
+        ip: request.headers.get('x-forwarded-for') || '0.0.0.0',
       },
-      cardData: { cardNumberToken: cardToken, cvv: cvv },
-    };
-
-    const { data } = await axios.post(`${API_URL}/sale`, salePayload, {
-      headers: { Authorization: `Bearer ${authToken}` }
+      cardData: {
+        cardNumberToken: cardToken,
+        cvv: cvv,
+      },
     });
 
-    if (data.status === "APPROVED") {
-      return NextResponse.json({ success: true, transactionId: data.orderId || data.reference, reference: data.reference, status: data.status, message: 'Pago aprobado' });
-    } else {
-      return NextResponse.json({ success: false, status: data.status, message: data.message || 'Pago rechazado' }, { status: 400 });
-    }
+    const orderIdResponse = saleResponse.data?.orderId || saleResponse.orderId || orderId;
+    const reference = saleResponse.data?.reference || saleResponse.reference || orderId;
+    const status = saleResponse.data?.status || saleResponse.status || 'APPROVED';
+
+    return NextResponse.json({
+      success: true,
+      transactionId: orderIdResponse,
+      reference: reference,
+      status: status,
+      message: 'Pago procesado correctamente',
+    });
+
   } catch (error: any) {
-    console.error('Keycop Payment Error:', error.response?.data || error.message);
-    return NextResponse.json({ success: false, status: 'error', message: error.response?.data?.message || 'Error procesando el pago' }, { status: 500 });
+    console.error('Error en pasarela Etomin:', error);
+    return NextResponse.json({
+      success: false,
+      status: 'error',
+      message: error?.message || 'Error procesando el pago',
+    }, { status: 500 });
   }
 }
